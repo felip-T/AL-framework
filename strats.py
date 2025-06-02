@@ -11,4 +11,8 @@ class Strategy(ABC):
 
 class RandomChoice(Strategy):
     def get_scores(self, pool, model=None):
+        print(pool.unlabeled_data)
         return rand(pool.unlabeled_data_size())
+
+    def __call__(self, data):
+        return self.get_scores(data)

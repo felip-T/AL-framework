@@ -1,5 +1,6 @@
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 import torch
+
 
 class DataPool():
     def __init__(self, data):
@@ -17,16 +18,9 @@ class DataPool():
         mask[indicies] = False
         self.unlabeled_data = self.unlabeled_data[mask]
 
+    def pop_data(self, indicies):
+        ret = torch.index_select(self.unlabeled_data, 0, indicies)
+        self.remove_data(indicies)
+        return ret
 
-class Oracle():
-    def __init__(self, labels, labeled_data=None, size=None):
-        if labeled_data is None and size is None:
-            raise Exception("labeled_data or size must not be None")
-        self.labeled_data = labeled_data if labeled_data is None else torch.empty(size)
-        self.labels = labels
 
-    def label_data(data, label):
-        return (data, label)
-
-    def label_indicies(indicies):
-        pass

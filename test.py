@@ -1,6 +1,6 @@
 from torchvision.datasets import CIFAR10
 from torchvision.models import resnet18, ResNet18_Weights
-from torchvision import transforms
+from torchvision.transforms import v2 as transforms
 from torch.utils.data import DataLoader
 from os import cpu_count
 import matplotlib
@@ -11,7 +11,33 @@ from torch.nn import Linear
 import torchvision
 
 from loaders import DataPool
+from oracle import Oracle, OraclePool, CATEGORIC
 from strats import RandomChoice
+
+
+def show_dataset(dataset):
+    cifar10_names = ["airplane",
+                     "automobile",
+                     "bird",
+                     "cat", 
+                     "deer",
+                     "dog",
+                     "frog",
+                     "horse",
+                     "ship",
+                     "truck"]
+
+    figure = plt.figure(figsize=(32, 32))
+    cols, rows = 3, 3
+    for i in range(1, cols * rows + 1):
+         sample_idx = torch.randint(len(dataset), size=(1,)).item()
+         img, label = dataset[sample_idx]
+         figure.add_subplot(rows, cols, i)
+         plt.title(cifar10_names[label])
+         plt.axis("off")
+         plt.imshow(img.squeeze(), cmap="gray")
+    plt.show()
+
 
 def main():
     model = resnet18(weights=None)
@@ -27,15 +53,10 @@ def main():
 
     print(type(test_data[0]))
 
-    pool = DataPool(torch.from_numpy(train_data.data))
-    print(train_data.data.shape)
-    print(pool.unlabeled_data_size())
+    oracle = OraclePool(torch.from_numpy(train_data.data), train_data.targets, label_shape=CATEGORIC)
     rc = RandomChoice()
-    scores = rc.get_scores(pool)
-    data, ind = pool.get_top_n(scores, 10)
-    pool.remove_data(ind)
-    print(pool.unlabeled_data.size(0))
+    oracle.label_n(rc, 10)
 
-
+    show_dataset(oracle.labeled_data)
 
 main()
