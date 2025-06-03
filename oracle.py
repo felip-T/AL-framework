@@ -66,7 +66,7 @@ class OraclePool(Oracle, DataPool):
             Oracle.__init__(self, labels, shape=data[0].shape, labels_type=type(labels[0]), data_type=data[0].dtype, **kwargs)
         DataPool.__init__(self, data)
 
-    def label_n(self, strat: callable, n: int):
-        scores = strat(self)
+    def label_n(self, strat: callable, n: int, model=None):
+        scores = strat(self, model)
         data, indicies = self.get_top_n(scores, n)
         self.label_indicies(data, indicies)
