@@ -3,8 +3,9 @@ import torch
 
 
 class DataPool():
-    def __init__(self, data):
+    def __init__(self, data, transform=None):
         self.unlabeled_data = data
+        self.transform = transform
 
     def unlabeled_data_size(self):
         return len(self.unlabeled_data)
@@ -23,4 +24,8 @@ class DataPool():
         self.remove_data(indicies)
         return ret
 
-
+    def __getitem__(self, idx):
+        d = self.unlabeled_data[idx]
+        if self.transform:
+            d = self.transform(d)
+        return d

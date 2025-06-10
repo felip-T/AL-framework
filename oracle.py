@@ -46,12 +46,10 @@ class Oracle():
             self.labeled_data = OracleDataset(labels=labeled_data.targets, data=labeled_data.data, **kwargs)
         else:
             self.labeled_data = OracleDataset(data_shape=shape, **kwargs)
-        print(self.labeled_data)
         self.labels = torch.tensor(labels)
 
     def label_indicies(self, data, indicies):
         labels = torch.index_select(self.labels, 0, indicies)
-        print(labels.shape)
         self.labeled_data.append_data(data, labels)
         mask = torch.ones(self.labels.size(0), dtype=bool)
         mask[indicies] = False
@@ -64,7 +62,8 @@ class OraclePool(Oracle, DataPool):
             Oracle.__init__(self, labels, labeled_data, **kwargs)
         else:
             Oracle.__init__(self, labels, shape=data[0].shape, labels_type=type(labels[0]), data_type=data[0].dtype, **kwargs)
-        DataPool.__init__(self, data)
+        transfrom = None if not "transform" in kwargs else kwargs["transform"]
+        DataPool.__init__(self, data, transfrom)
 
     def label_n(self, strat: callable, n: int, model=None):
         scores = strat(self, model)

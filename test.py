@@ -44,17 +44,21 @@ def main():
     model.fc = Linear(512, 10)
     train_data = torchvision.datasets.CIFAR10(root='./data', 
                                         train=True, 
-                                        download=True,
-                                        transform=transforms.Compose([transforms.ToTensor(), transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]))
+                                        download=True)
 
     test_data = torchvision.datasets.CIFAR10(root='./data', 
                                         train=False, 
                                         download=True,
                                         transform=transforms.Compose([transforms.ToTensor(), transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]))
 
-    print(type(test_data[0]))
+    loader = DataLoader(test_data, batch_size=1)
 
-    oracle = OraclePool(torch.from_numpy(train_data.data), train_data.targets, label_shape=CATEGORIC)
+    model.pred
+    for i, j in loader:
+        print(i)
+        print(model(i))
+
+    oracle = OraclePool(torch.from_numpy(train_data.data).float(), train_data.targets, label_shape=CATEGORIC)
     rc = RandomChoice()
     oracle.label_n(rc, 10)
     es = EmbedingSimilarity()
