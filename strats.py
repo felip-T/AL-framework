@@ -23,7 +23,7 @@ class Strategy(ABC):
 
 class RandomChoice(Strategy):
     def get_scores(self, pool, model=None, labeled_data: Dataset=None):
-        return rand(pool.unlabeled_data_size())
+        return rand(len(pool))
 
 
 class EmbedingSimilarity(Strategy):

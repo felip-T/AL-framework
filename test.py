@@ -10,8 +10,10 @@ import torch
 from torch.nn import Linear
 import torchvision
 from torch import nn
+from time import time
 
-from datasets import DataPool, LabeledData
+from datasets import DataPool
+import datasets
 from strats import RandomChoice, EmbedingSimilarity, LowConfidence
 
 
@@ -35,7 +37,7 @@ def show_dataset(dataset):
          figure.add_subplot(rows, cols, i)
          plt.title(cifar10_names[label])
          plt.axis("off")
-         plt.imshow(img.squeeze(), cmap="gray")
+         plt.imshow(img.permute(1,2,0))
     plt.show()
 
 
@@ -53,21 +55,18 @@ def main():
                                         download=True,
                                         transform=data_transforms)
 
-    train_dataset = [data_transforms(x) for x in train_data.data]
-    test_dataset = [data_transforms(x) for x in test_data.data]
-    print(train_dataset)
-    loader = DataPool(train_dataset)
-    labeled_data = LabeledData(test_dataset, torch.Tensor(test_data.targets))
-    labeled_data.append_data(train_dataset[1], train_data.targets[1])
-    # modules = list(model.children())[:-1]
-    # embedding = nn.Sequential(*modules)
-    # embedding.eval()
+    data = datasets.ExperimentDataset(train_data, 0.01)
+    
     es = LowConfidence()
-    print(es(loader, model, test_data))
+    print(es(data.get_pool(), model, data.get_data()))
     es = RandomChoice()
-    print(es(loader, model, test_data))
+    print(es(data.get_pool(), model, data.get_data()))
     es = EmbedingSimilarity()
-    print(es(loader, model, test_data))
+    scores = es(data.get_pool(), model, data.get_data())
+    data.label_top_n(scores, 200)
+    print(len(data.get_data()))
+    print(len(data.get_pool()))
+
     return
 
     show_dataset(oracle.labeled_data)
